@@ -1,0 +1,591 @@
+`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anonymous Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @keyframes hauntedFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        @keyframes ghostlyGlow {
+            0%, 100% { box-shadow: 0 0 5px rgba(139, 92, 246, 0.3); }
+            50% { box-shadow: 0 0 15px rgba(139, 92, 246, 0.5); }
+        }
+
+        @keyframes neonPulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes hauntedBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        @keyframes searchIconFloat {
+            0% { transform: translateY(-50%) translateX(0); }
+            50% { transform: translateY(-50%) translateX(-5px); }
+            100% { transform: translateY(-50%) translateX(0); }
+        }
+
+        body {
+            background: #000000 !important;
+            min-height: 100vh;
+            animation: hauntedBlink 8s infinite;
+        }
+
+        .welcome-text {
+            font-size: 4.5rem;
+            animation: ghostlyGlow 3s infinite, hauntedFloat 6s ease-in-out infinite;
+            background: linear-gradient(135deg, #ff0066, #4f46e5);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 0 0 20px rgba(255, 0, 102, 0.5);
+        }
+
+        .chat-card {
+            background: rgba(20, 20, 30, 0.8) !important;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: neonPulse 4s infinite, hauntedBlink 5s infinite;
+            transition: all 0.5s ease;
+        }
+
+        .chat-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.4);
+            animation: neonPulse 2s infinite;
+        }
+
+        .public-chat-title {
+            background: linear-gradient(135deg, #ff0066, #ff4d4d);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: ghostlyGlow 4s infinite;
+        }
+
+        .private-chat-title {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: ghostlyGlow 4s infinite;
+        }
+
+        .create-room-btn {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.8), rgba(79, 70, 229, 0.8));
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+
+        .create-room-btn:hover {
+            opacity: 0.9;
+        }
+
+        .search-container {
+            position: relative;
+            width: 100%;
+            margin: 0;
+        }
+
+        .search-input {
+            background: rgba(20, 20, 30, 0.95);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: white;
+            padding: 0.75rem 1rem;
+            padding-left: 3rem !important;
+            border-radius: 0.5rem;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: rgba(139, 92, 246, 0.8);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(139, 92, 246, 0.8);
+            font-size: 1rem;
+        }
+
+        .online-dot {
+            animation: hauntedBlink 2s infinite;
+            box-shadow: 0 0 10px #4ade80;
+        }
+
+        .ghost-text {
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: hauntedBlink 6s infinite;
+        }
+
+        /* Add blinking effect to all interactive elements */
+        button, input, .chat-card, .welcome-text {
+            animation-play-state: running !important;
+        }
+
+        /* Enhance hover effects */
+        button:hover, input:focus {
+            animation-duration: 1.5s !important;
+        }
+
+        .message {
+            animation: ghostlyGlow 4s infinite, hauntedFloat 6s ease-in-out infinite;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            max-width: 80%;
+            margin: 0.5rem 0;
+        }
+
+        .message.sent {
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.2), rgba(139, 92, 246, 0.2));
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            margin-left: auto;
+        }
+
+        .message.received {
+            background: linear-gradient(135deg, rgba(255, 0, 102, 0.2), rgba(236, 72, 153, 0.2));
+            border: 1px solid rgba(236, 72, 153, 0.3);
+            margin-right: auto;
+        }
+
+        .user-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            background: rgba(139, 92, 246, 0.1);
+            margin: 0.25rem 0;
+            animation: hauntedBlink 4s infinite;
+        }
+
+        .user-item:hover {
+            background: rgba(139, 92, 246, 0.2);
+            animation: neonPulse 2s infinite;
+        }
+
+        .user-avatar {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            animation: ghostlyGlow 3s infinite;
+        }
+
+        #messagesArea::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #messagesArea::-webkit-scrollbar-track {
+            background: rgba(20, 20, 30, 0.8);
+        }
+
+        #messagesArea::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            border-radius: 4px;
+            animation: neonPulse 3s infinite;
+        }
+
+        #messagesArea::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #ff0066, #4f46e5);
+        }
+
+        #createRoomModal .chat-card {
+            background: rgba(20, 20, 30, 0.95);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            max-width: 500px;
+            width: 90%;
+            margin: 2rem auto;
+            padding: 2rem;
+            border-radius: 1rem;
+        }
+
+        #memberTags .member-tag {
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.25rem;
+        }
+
+        #memberTags .member-tag button {
+            color: rgba(255, 255, 255, 0.7);
+            transition: color 0.3s ease;
+        }
+
+        #memberTags .member-tag button:hover {
+            color: #ef4444;
+        }
+
+        .private-rooms-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            width: 100%;
+        }
+
+        .room-card {
+            background: rgba(20, 20, 30, 0.95);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .room-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.2);
+        }
+
+        .room-title {
+            color: rgba(139, 92, 246, 0.9);
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .online-status {
+            color: white;
+            animation: ghostlyGlow 3s infinite;
+        }
+
+        .online-status i {
+            animation: hauntedBlink 2s infinite;
+        }
+
+        .member-count {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .online-indicator {
+            width: 8px;
+            height: 8px;
+            background: #10B981;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        /* Add styles for the create room button container */
+        .create-room-container {
+            position: static;
+            transform: none;
+            animation: none;
+        }
+
+        .create-room-btn {
+            transition: all 0.3s ease;
+        }
+
+        .create-room-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.4);
+        }
+
+        /* Update room modal layout */
+        #roomModal .container {
+            padding-bottom: 8rem;
+        }
+
+        /* Update search container styles */
+        .search-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .search-input {
+            padding-left: 3rem !important;
+            font-size: 1rem;
+        }
+
+        /* Update create button styles */
+        #showCreateRoom {
+            white-space: nowrap;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        #showCreateRoom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+        }
+
+        #privateMembersStatus {
+            color: white !important;
+        }
+
+        #privateMembersStatus span {
+            color: white !important;
+        }
+
+        .member-status {
+            color: white;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-black">
+    <!-- Room Selection Modal -->
+    <div id="roomModal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center">
+        <div class="container mx-auto px-4 py-8">
+            <h1 class="welcome-text text-center mb-16">Welcome to Anonymous Chat</h1>
+            
+            <!-- Main Content (Chat Cards) -->
+            <div class="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
+                <!-- Public Chat Card -->
+                <div id="joinPublic" class="chat-card p-8 rounded-2xl cursor-pointer">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold public-chat-title">
+                            <i class="fas fa-ghost mr-3"></i>Public Chat
+                        </h2>
+                        <span class="px-4 py-2 rounded-full" style="background: linear-gradient(135deg, #ff0066, #ff4d4d); color: white;">
+                            Open for All
+                        </span>
+                    </div>
+                    <p class="ghost-text mb-6 text-lg">Enter the haunted public chat room. Join the mysterious conversation...</p>
+                    <div id="publicOnlineCount" class="text-base ghost-text flex items-center">
+                        <span class="w-3 h-3 bg-green-400 rounded-full mr-3 online-dot"></span>
+                        <span>0 Spirits Online</span>
+                    </div>
+                </div>
+
+                <!-- Private Chat Card -->
+                <div id="joinPrivate" class="chat-card p-8 rounded-2xl cursor-pointer">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold private-chat-title">
+                            <i class="fas fa-crown mr-3"></i>Uday's Private Chat
+                        </h2>
+                        <span class="px-4 py-2 rounded-full" style="background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white;">
+                            VIP Access
+                        </span>
+                    </div>
+                    <p class="ghost-text mb-6 text-lg">Enter Uday's exclusive chamber. Only chosen spirits may enter this sacred realm...</p>
+                    <div id="privateMembersStatus" class="rounded-lg p-4 text-white" style="background: rgba(79, 70, 229, 0.1);">
+                        <div class="flex items-center justify-between p-2">
+                            <span class="text-purple-400 font-medium">Authorized Members</span>
+                            <span class="inline-flex items-center text-white">
+                                <span class="w-2 h-2 bg-green-400 rounded-full mr-2 online-dot"></span>
+                                <span class="text-white">0 online of 4</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search and Create Section -->
+            <div class="mt-12 max-w-5xl mx-auto">
+                <!-- Search Container -->
+                <div class="chat-card p-6 rounded-2xl mb-6">
+                    <div class="flex items-center gap-6">
+                        <div class="flex-1">
+                            <h3 class="text-xl font-bold private-chat-title mb-4">
+                                <i class="fas fa-search mr-2"></i>
+                                Search Chambers
+                            </h3>
+                            <div class="search-container mb-0">
+                                <i class="fas fa-search search-icon"></i>
+                                <input type="text" id="roomSearch" 
+                                       placeholder="Search through the shadows..." 
+                                       class="search-input">
+                            </div>
+                        </div>
+                        <div class="flex items-end">
+                            <button id="showCreateRoom" class="create-room-btn py-4 px-8">
+                                <i class="fas fa-crown mr-2"></i>
+                                Create Private Chamber
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Private Rooms Container -->
+                <div class="private-rooms-container mt-6">
+                    <template id="roomCardTemplate">
+                        <div class="room-card">
+                            <div class="room-title flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <i class="fas fa-dungeon mr-2"></i>
+                                    <span class="room-name"></span>
+                                </div>
+                                <span class="online-status px-3 py-1 rounded-full text-sm" 
+                                      style="background: rgba(79, 70, 229, 0.2); border: 1px solid rgba(139, 92, 246, 0.3);">
+                                    <i class="fas fa-circle text-green-500 text-xs mr-2"></i>
+                                    <span class="online-count"></span>
+                                </span>
+                            </div>
+                            <div class="actions mt-6 flex justify-end gap-2">
+                                <button class="create-room-btn join-btn">
+                                    <i class="fas fa-door-open mr-2"></i>Enter
+                                </button>
+                                <button class="create-room-btn delete-btn" style="background: linear-gradient(135deg, #DC2626, #991B1B);">
+                                    <i class="fas fa-trash mr-2"></i>Delete
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Room Modal -->
+    <div id="createRoomModal" class="fixed inset-0 bg-black bg-opacity-90 hidden items-center justify-center">
+        <div class="chat-card p-8 rounded-2xl max-w-md w-full mx-4">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-bold private-chat-title">
+                    <i class="fas fa-dungeon mr-3"></i>
+                    Create Private Room
+                </h2>
+                <button id="closeCreateRoom" class="ghost-text hover:text-purple-400 transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-6">
+                <div>
+                    <label for="roomNameInput" class="block ghost-text text-lg mb-3">Room Name</label>
+                    <input type="text" id="roomNameInput" class="search-input w-full" 
+                           placeholder="Enter the chamber's name...">
+                </div>
+                
+                <div>
+                    <label for="memberInput" class="block ghost-text text-lg mb-3">Add Members</label>
+                    <input type="text" id="memberInput" class="search-input w-full" 
+                           placeholder="Summon other spirits...">
+                    <div id="memberTags" class="flex flex-wrap gap-2 mt-3">
+                        <!-- Member tags will be added here -->
+                    </div>
+                </div>
+
+                <div class="flex gap-4 pt-4">
+                    <button id="createRoomBtn" class="create-room-btn flex-1 py-3">
+                        <i class="fas fa-magic mr-2"></i>
+                        Create Chamber
+                    </button>
+                    <button id="cancelCreateRoom" class="create-room-btn flex-1 py-3"
+                            style="background: linear-gradient(135deg, #dc2626, #991b1b);">
+                        <i class="fas fa-times mr-2"></i>
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Username Modal -->
+    <div id="usernameModal" class="fixed inset-0 bg-black bg-opacity-90 hidden items-center justify-center">
+        <div class="chat-card p-8 rounded-2xl max-w-md w-full mx-4">
+            <h2 class="text-4xl font-bold private-chat-title mb-8 text-center">
+                <i class="fas fa-ghost mr-3"></i>
+                Enter your username
+            </h2>
+            <div class="relative mb-6">
+                <input type="text" id="usernameInput" 
+                    class="search-input w-full pl-12 py-4 text-lg" 
+                    placeholder="Your spectral identity...">
+                <i class="fas fa-user-ghost absolute left-4 top-1/2 transform -translate-y-1/2 text-purple-500 text-xl"></i>
+            </div>
+            <p id="errorMessage" class="text-red-500 text-sm mb-4 hidden">Access to this realm is forbidden for your spirit.</p>
+            <button id="joinChat" class="create-room-btn w-full py-4 text-lg">
+                <i class="fas fa-door-open mr-2"></i>
+                Enter the Void
+            </button>
+        </div>
+    </div>
+
+    <!-- Chat Interface -->
+    <div id="chatInterface" class="h-screen flex flex-col hidden">
+        <!-- Header -->
+        <div class="chat-card p-4">
+            <div class="flex items-center justify-between">
+                <h1 id="roomTitle" class="text-xl font-bold public-chat-title"></h1>
+                <div class="flex items-center space-x-4">
+                    <span class="ghost-text">
+                        <i class="fas fa-ghost mr-1"></i>
+                        <span id="currentUsername"></span>
+                    </span>
+                    <button id="leaveChat" class="create-room-btn py-2 px-4 text-sm">Leave Chamber</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="flex-1 flex">
+            <!-- Sidebar -->
+            <div class="w-64 chat-card hidden md:block">
+                <div class="p-4 border-b border-purple-500/20">
+                    <h2 class="private-chat-title text-lg">
+                        <i class="fas fa-users mr-2"></i>
+                        Spirits Online (<span id="onlineCount" class="ghost-text">0</span>)
+                    </h2>
+                </div>
+                <div id="onlineUsers" class="p-4 space-y-3">
+                    <!-- Online users will be listed here -->
+                </div>
+
+                <!-- Private Members Section -->
+                <div id="privateMembersSection" class="border-t border-purple-500/20 hidden">
+                    <div class="p-4">
+                        <h2 class="private-chat-title text-lg">
+                            <i class="fas fa-crown mr-2"></i>
+                            Uday's Chamber Members
+                        </h2>
+                    </div>
+                    <div id="privateMembers" class="p-4">
+                        <!-- Private members will be listed here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages Area -->
+            <div class="flex-1 flex flex-col">
+                <div id="messagesArea" class="flex-1 overflow-y-auto p-4 space-y-4 chat-card">
+                    <!-- Messages will appear here -->
+                </div>
+
+                <!-- Message Input -->
+                <div class="chat-card p-4 mt-2">
+                    <div class="flex space-x-2">
+                        <input type="text" id="messageInput" class="search-input flex-1" placeholder="Whisper your message into the void...">
+                        <button id="sendMessage" class="create-room-btn px-6">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="chat.js"></script>
+</body>
+</html> 
